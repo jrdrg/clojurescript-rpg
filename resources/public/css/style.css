@@ -11,6 +11,7 @@ body {
 .map {
     position: relative;
     border: 2px solid brown;
+    overflow: hidden;
 }
 
 .tile {

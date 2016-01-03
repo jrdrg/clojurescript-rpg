@@ -9,16 +9,17 @@
                            :text "test"
                            }))
 
+(def tile-data [[:bounds     "X"   "red"   "black" 0]
+                [:floor      "."   "brown" "black" 8]
+                [:tree       "T"   "green" "black" 2]
+                [:mountain   "^"   "gray"  "black" 1]])
+
 (defrecord Tile [key char color background weight])
-(def tiles (map #(apply ->Tile %)
-                [[:bounds     "X"   "red"   "black" 0]
-                 [:floor      "."   "brown" "black" 8]
-                 [:tree       "T"   "green" "black" 2]
-                 [:mountain   "^"   "gray"  "black" 1]]))
+(def tiles (map #(apply ->Tile %) tile-data))
 
 (def screen-size [20 20])
 (def world-size [50 50])
-(def tile-size [25 25])
+(def tile-size 25)
 
 
   
@@ -45,41 +46,49 @@
   (swap! game-state assoc-in [:world :tiles] (get-random-map)))
 
 (defn tile-view [{:keys [tile x y]}]
-  (let [[tile-width tile-height] tile-size]
-    [:div.tile {:style {:position "absolute"
-                        :top (* y tile-height)
-                        :left (* x tile-width)
-                        :width tile-width
-                        :height tile-height
-                        :color (:color tile)
-                        :background (:background tile)}}
-     (:char tile)]
-    ))
+  [:div.tile {:style {:position "absolute"
+                      :top (* y tile-size)
+                      :left (* x tile-size)
+                      :width tile-size
+                      :height tile-size
+                      :color (:color tile)
+                      :background (:background tile)}}
+   (:char tile)])
 
 
 (defn map-view []
-  (let [[tile-width tile-height] tile-size
-        [sx sy] screen-size
+  (let [[sx sy] screen-size
         [pos-x pos-y] (get-in @game-state [:world :position])
         tile-map (get-in @game-state [:world :tiles])
         vx sx
         vy sy
-        start-x 0
-        start-y 0
+        start-x pos-x
+        start-y pos-y
         end-x (+ start-x vx)
         end-y (+ start-y vy)]
-    [:div.map {:style {:width (* tile-width sx)
-                       :height (* tile-height sy)}}
+    [:div.map {:style {:width (* tile-size sx)
+                       :height (* tile-size sy)}}
      (for [y (range start-y end-y) x (range start-x end-x)]
        ^{:key (str x ":" y)}
-       [tile-view {:tile (get-tile tile-map x y) :x x :y y}])]))
+       [tile-view {:tile (get-tile tile-map x y)
+                   :x (- x start-x)
+                   :y (- y start-y)}])]))
 
+(defn move-button [x y dir]
+  (let [[pos-x pos-y] (get-in @game-state [:world :position])
+        update-position (fn [] (swap! game-state assoc-in [:world :position] [(+ x pos-x) (+ y pos-y)]))]
+  [:button {:on-click #(update-position)} dir]))
+   
 (defn map-ui-view []
   (update-state-new-map)
   (fn []
     [:div.container
      [map-view]
      [:button {:on-click #(update-state-new-map)} "new map"]
+     [move-button -1 0 "Left"]
+     [move-button 1 0 "Right"]
+     [move-button 0 -1 "Up"]
+     [move-button 0 1 "Down"]
      ]))
 
 (defn app-view []

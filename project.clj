@@ -1,4 +1,4 @@
-(defproject incremental-rpg "0.1.0-SNAPSHOT"
+(defproject rpg "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -20,11 +20,11 @@
               [{:id "dev"
                 :source-paths ["src"]
 
-                :figwheel {:on-jsload "incremental-rpg.core/on-js-reload"}
+                :figwheel {:on-jsload "rpg.core/on-js-reload"}
 
-                :compiler {:main incremental-rpg.core
+                :compiler {:main rpg.core
                            :asset-path "js/compiled/out"
-                           :output-to "resources/public/js/compiled/incremental_rpg.js"
+                           :output-to "resources/public/js/compiled/rpg.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true}}
                ;; This next build is an compressed minified build for
@@ -32,8 +32,8 @@
                ;; lein cljsbuild once min
                {:id "min"
                 :source-paths ["src"]
-                :compiler {:output-to "resources/public/js/compiled/incremental_rpg.js"
-                           :main incremental-rpg.core
+                :compiler {:output-to "resources/public/js/compiled/rpg.js"
+                           :main rpg.core
                            :optimizations :advanced
                            :pretty-print false}}]}
 
