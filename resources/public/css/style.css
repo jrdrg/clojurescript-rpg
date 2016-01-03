@@ -1,0 +1,19 @@
+/* some style */
+
+body {
+    background: #333;
+}
+
+.app {
+    //background: burlywood;
+}
+
+.map {
+    position: relative;
+    border: 2px solid brown;
+}
+
+.tile {
+    display: flex;
+    justify-content: center;
+}
