@@ -1,7 +1,10 @@
 (ns rpg.core
-  (:require [reagent.core :as reagent :refer [atom]]))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [cljs.core.async :as async :refer [<! >! chan]])
+  (:require-macros [cljs.core.async.macros :as am :refer [go-loop]]))
 
 (enable-console-print!)
+
 
 (defonce game-state (atom {:world {:tiles []
                                    :position [0 0]
@@ -21,7 +24,7 @@
 (def world-size [50 50])
 (def tile-size 25)
 
-
+(def events-chan (chan))
   
 (defn get-weighted-tiles []
   (flatten (map #(repeat (:weight %) %) tiles)))
@@ -44,6 +47,14 @@
 
 (defn update-state-new-map []
   (swap! game-state assoc-in [:world :tiles] (get-random-map)))
+
+
+(defn run-events [in-chan]
+  (go-loop [data (<! in-chan)]
+    (print data)
+    ))
+
+
 
 (defn tile-view [{:keys [tile x y]}]
   [:div.tile {:style {:position "absolute"
@@ -77,7 +88,7 @@
 (defn move-button [x y dir]
   (let [[pos-x pos-y] (get-in @game-state [:world :position])
         update-position (fn [] (swap! game-state assoc-in [:world :position] [(+ x pos-x) (+ y pos-y)]))]
-  [:button {:on-click #(update-position)} dir]))
+    [:button {:on-click #(update-position)} dir]))
    
 (defn map-ui-view []
   (update-state-new-map)
@@ -92,6 +103,8 @@
      ]))
 
 (defn app-view []
+  (do
+    (run-events events-chan))
   (fn []
     [:div.app
      [map-ui-view]
