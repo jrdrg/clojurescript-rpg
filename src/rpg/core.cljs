@@ -1,7 +1,8 @@
 (ns rpg.core
   (:require [reagent.core :as reagent :refer [atom]]
-            [rpg.map :as map :refer [game-state get-tile]]
-            [cljs.core.async :as async :refer [<! >! chan]])
+            [rpg.state :as state :refer [game-state]]
+            [rpg.map :as map :refer [get-tile]]
+            [cljs.core.async :as async :refer [<! >! chan put!]])
   (:require-macros [cljs.core.async.macros :as am :refer [go-loop]]))
 
 
@@ -10,11 +11,16 @@
 (def tile-size 25)
 (def events-chan (chan))
 
+(defmacro handler-fn
+  ([& body]
+   `(fn [~'event] ~@body nil)))  ; always return nil
+
 
 (defn run-events [in-chan]
-  (go-loop [data (<! in-chan)]
-    (print data)
-    ))
+  (go-loop []
+    (let [data (<! in-chan)]
+      (print data)
+      (recur))))
 
 (defn tile-view [{:keys [tile x y]}]
   [:div.tile {:style {:position "absolute"
@@ -47,8 +53,10 @@
 
 (defn move-button [x y dir]
   (let [[pos-x pos-y] (get-in @game-state [:world :position])
+        send-update-event #(put! events-chan {:type :move
+                                              :delta [x y]})
         update-position #(swap! game-state assoc-in [:world :position] [(+ x pos-x) (+ y pos-y)])]
-    [:button {:on-click #(update-position)} dir]))
+    [:button {:on-click #(send-update-event)} dir]))
    
 (defn map-ui-view []
   (map/update-state-new-map)

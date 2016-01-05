@@ -1,11 +1,6 @@
 (ns rpg.map
-  (:require [reagent.core :as reagent :refer [atom]]))
-
-(defonce game-state (atom {:world {:tiles []
-                                   :position [0 0]
-                                   }
-                           :text "test"
-                           }))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [rpg.state :as state :refer [game-state]]))
 
 (def tile-data [[:bounds     "X"   "red"   "black" 0]
                 [:floor      "."   "brown" "black" 8]
