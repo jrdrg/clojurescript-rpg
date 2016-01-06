@@ -8,6 +8,11 @@ body {
     //background: burlywood;
 }
 
+.wrapper {
+    display: flex;
+    color: white;
+}
+
 .map {
     position: relative;
     border: 2px solid brown;
